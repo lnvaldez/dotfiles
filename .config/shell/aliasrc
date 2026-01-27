@@ -1,0 +1,4 @@
+# Edit config
+alias cfz="$EDITOR $ZDOTDIR/.zshrc"
+alias cfa="$EDITOR $XDG_CONFIG_HOME/shell/aliasrc"
+
