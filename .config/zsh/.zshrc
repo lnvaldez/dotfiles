@@ -19,9 +19,21 @@ HISTCONTROL=ignoreboth
 bindkey -v
 export KEYTIMEOUT=1
 
+lfcd() {
+    tmp="$(mktemp -uq)"
+    trap 'rm -f $tmp >/dev/null 2>&1 && trap - HUP INT QUIT TERM PWR EXIT' HUP INT QUIT TERM PWR EXIT
+    lf -last-dir-path="$tmp" "$@"
+    if [ -f "$tmp" ]; then
+        dir="$(cat "$tmp")"
+        [ -d "$dir" ] && [ "$dir" != "$(pwd)" ] && cd "$dir"
+    fi
+}
+
 # Binds
 bindkey '^L' clear-screen
 bindkey '^A' beginning-of-line
+
+bindkey -s '^o' '^Ulfcd\n'
 
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
