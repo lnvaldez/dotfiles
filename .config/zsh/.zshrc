@@ -23,6 +23,9 @@ export KEYTIMEOUT=1
 bindkey '^L' clear-screen
 bindkey '^A' beginning-of-line
 
+autoload edit-command-line; zle -N edit-command-line
+bindkey '^e' edit-command-line
+
 # Completion dump
 compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION"
 
