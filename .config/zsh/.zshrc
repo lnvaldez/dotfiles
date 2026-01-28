@@ -29,11 +29,16 @@ lfcd() {
     fi
 }
 
+lfcd_hidden() {
+  lfcd --command "set hidden" >/dev/null 2>&1
+}
+
 # Binds
 bindkey '^L' clear-screen
 bindkey '^A' beginning-of-line
 
 bindkey -s '^o' '^Ulfcd\n'
+bindkey -s '[^o' '^Ulfcd_hidden\n'
 
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
