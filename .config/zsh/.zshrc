@@ -33,12 +33,21 @@ lfcd_hidden() {
   lfcd --command "set hidden" >/dev/null 2>&1
 }
 
+# Open fzf selected file in editor and bind it to ctrl-f
+fzfe() {
+  local file
+	file=$(fzf --highlight-line --preview="bat --color=always {} 2>/dev/null || cat {}")
+	[[ -n "$file" ]] && ${EDITOR: -vim} "$file"
+}
+
 # Binds
 bindkey '^L' clear-screen
 bindkey '^A' beginning-of-line
 
 bindkey -s '^o' '^Ulfcd\n'
 bindkey -s '[^o' '^Ulfcd_hidden\n'
+
+bindkey -s '^f' '^Ufzfe\n'
 
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
