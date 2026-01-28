@@ -36,7 +36,7 @@ lfcd_hidden() {
 # Open fzf selected file in editor and bind it to ctrl-f
 fzfe() {
   local file
-	file=$(fzf --highlight-line --preview="bat --color=always {} 2>/dev/null || cat {}")
+	file=$(fzf --tmux 100%,80% --layout=reverse --preview-window=right:70% --exact --highlight-line --preview="bat --color=always {} 2>/dev/null || cat {}")
 	[[ -n "$file" ]] && ${EDITOR: -vim} "$file"
 }
 
