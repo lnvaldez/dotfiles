@@ -1,8 +1,13 @@
 # Source global shell alias
 [ -f "$XDG_CONFIG_HOME/shell/aliasrc" ] && source "$XDG_CONFIG_HOME/shell/aliasrc"
 
+PLUGINS_DIR="$XDG_DATA_HOME/zsh/plugins"
+
 # Load modules
 autoload -U compinit && compinit
+autoload -U colors && colors
+
+PS1="%F{2}%B[%n@%m%b %1~]%f$ "
 
 # History options
 HISTFILE="$XDG_STATE_HOME/zsh/history"
@@ -10,10 +15,17 @@ HISTSIZE=1000
 SAVEHIST=1000
 HISTCONTROL=ignoreboth
 
-# Binds
+# vi mode
 bindkey -v
+export KEYTIMEOUT=1
+
+# Binds
+bindkey '^L' clear-screen
+bindkey '^A' beginning-of-line
 
 # Completion dump
 compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION"
 
 zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
+
+source "$PLUGINS_DIR/zsh-syntax/highlighting/zsh-syntax-highlighting.zsh"
