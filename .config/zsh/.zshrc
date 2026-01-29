@@ -19,6 +19,10 @@ HISTCONTROL=ignoreboth
 bindkey -v
 export KEYTIMEOUT=1
 
+tmux_mode() {
+  ~/.local/bin/tmux-toggle
+}
+
 lfcd() {
     tmp="$(mktemp -uq)"
     trap 'rm -f $tmp >/dev/null 2>&1 && trap - HUP INT QUIT TERM PWR EXIT' HUP INT QUIT TERM PWR EXIT

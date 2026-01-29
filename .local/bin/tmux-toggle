@@ -1,0 +1,10 @@
+#!bin/bash
+
+SESSION="main"
+
+if [ -n "$TMUX" ]; then
+	tmux kill-session
+	st &
+else
+	exec tmux new-session -A -s "$SESSION"
+fi
