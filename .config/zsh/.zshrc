@@ -9,15 +9,26 @@ autoload -U colors && colors
 
 PS1="%F{2}%B[%n@%m%b %1~]%f$ "
 
+stty stop undef # Disable ctrl-s which freezes the terminal
+
 # History options
 HISTFILE="$XDG_STATE_HOME/zsh/history"
 HISTSIZE=1000
 SAVEHIST=1000
 HISTCONTROL=ignoreboth
 
+zstyle ':completion:*' menu select
+zmodload zsh/complist
+
 # vi mode
 bindkey -v
 export KEYTIMEOUT=1
+
+# Use vi navigation keys in menu completion 
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
 
 tmux_mode() {
   ~/.local/bin/tmux-toggle
