@@ -1,0 +1,10 @@
+#!/bin/sh
+
+dunst &
+pipewire &
+sleep 2
+pipewire-pulse &
+wireplumber &
+sleep 2
+
+dwmblocks &
