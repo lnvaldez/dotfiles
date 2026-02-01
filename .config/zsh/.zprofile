@@ -9,3 +9,8 @@ export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 
+export XINITRC="$XDG_CONFIG_HOME/x11/xinitrc"
+
+if [[ -z $DISPLAY && $(tty) == /dev/tty1 ]]; then
+	exec startx "$XINITRC"
+fi
