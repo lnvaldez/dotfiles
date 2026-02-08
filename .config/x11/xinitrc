@@ -8,4 +8,7 @@ else
 	. "$HOME/.xprofile"
 fi
 
+
+wal -R
+
 exec dwm
