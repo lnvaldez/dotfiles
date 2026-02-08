@@ -66,3 +66,11 @@ XClock*secondColor: rgba:{color15.xrgba}
 
 ! Set depth to make transparency work.
 URxvt*depth: 32
+
+! DWM colors (xrdb patch)
+dwm.normbgcolor: {color0}
+dwm.normfgcolor: {color7}
+dwm.normbordercolor: {color8}
+dwm.selbgcolor: {color1}
+dwm.selfgcolor: {color15}
+dwm.selbordercolor: {color1}
