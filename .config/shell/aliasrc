@@ -2,3 +2,5 @@
 alias cfz="$EDITOR $ZDOTDIR/.zshrc"
 alias cfa="$EDITOR $XDG_CONFIG_HOME/shell/aliasrc"
 
+# Source
+alias srz="source $ZDOTDIR/.zshrc"
