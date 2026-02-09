@@ -1,0 +1,10 @@
+#!/bin/bash
+
+WALLPAPER_FOLDER=~/Pictures
+CHOICE=$(nsxiv -otb "$WALLPAPER_FOLDER"/*)
+[ -z "$CHOICE" ] && exit 0
+wal -i "$CHOICE"
+xwallpaper --center "$CHOICE"
+xrdb -merge ~/.cache/wal/colors.Xresources
+
+
