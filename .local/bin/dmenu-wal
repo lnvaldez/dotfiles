@@ -1,0 +1,9 @@
+#!/bin/sh
+
+bg="${xrdb -query | awk '/\*\.background:/ {print $2}') "
+fg="${xrdb -query | awk '/\*\.foreground:/ {print $2}') "
+sb="${xrdb -query | awk '/\*\.color4:/ {print $2}') "
+sf="${xrdb -query | awk '/\*\.foreground:/ {print $2}') "
+
+dmenu_run -i -nb "$bg" -nf "$fg" -sb "$sb" -sf "$sf"
+
