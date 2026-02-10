@@ -1,14 +1,11 @@
 #!/bin/sh
 
-xwallpaper --center ~/Pictures/tux.jpg
+setbg
 
 if [ -f "$XDG_CONFIG_HOME:-$HOME/.config}/x11/xprofile" ];then
 	. "$XDG_CONFIG_HOME:-$HOME/.config}/x11/xprofile"
 else
 	. "$HOME/.xprofile"
 fi
-
-
-wal -R
 
 exec dwm
