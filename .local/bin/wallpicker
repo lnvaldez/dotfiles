@@ -1,10 +1,20 @@
 #!/bin/bash
 
 WALLPAPER_FOLDER=~/Pictures
+
+# Choose a wallpaper with nsxiv
 CHOICE=$(nsxiv -otb "$WALLPAPER_FOLDER"/*)
 [ -z "$CHOICE" ] && exit 0
+
+# Symlink $CHOICE (for setbg script at startup)
+ln -sf "$CHOICE" "$XDG_DATA_HOME/bg"
+
+# Generate colorscheme and apply wallpaper
 wal -i "$CHOICE"
 xwallpaper --center "$CHOICE"
 xrdb -merge ~/.cache/wal/colors.Xresources
+
+# Refresh dwm (requires xrdb patch)
+pidof dwm >/dev/null && xdotool key super+F5
 
 
