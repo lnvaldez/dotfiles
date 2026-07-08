@@ -24,6 +24,28 @@ end
 
 set_transparent()
 
+local function get_xresources_color(color_name)
+	local file = io.open(os.getenv("HOME") .. "/.cache/wal/colors.Xresources", "r")
+	if not file then
+		return nil
+	end
+
+	local content = file:read("*all")
+	file:close()
+
+	-- Match pattern like: *color0: #123456
+	local pattern = "*" .. color_name .. "%s*:%s*(%S+)"
+	local color = content:match(pattern)
+
+	return color
+end
+
+local color0 = get_xresources_color("color0")
+
+if color0 then
+	vim.api.nvim_set_hl(0, "CursorLine", { bg = color0, ctermbg = "NONE" })
+end
+
 -- OPTIONS
 vim.opt.number = true
 vim.opt.cursorline = true
