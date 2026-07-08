@@ -23,10 +23,8 @@ vim.opt.showmatch = true
 vim.opt.smd = false
 
 local undodir = vim.fn.expand("$XDG_STATE_HOME/nvim/undo/")
-if
-		vim.fn.isdirectory(undodir) == 0
-then
-		vim.fn.mkdir(undodir, "p")
+if vim.fn.isdirectory(undodir) == 0 then
+	vim.fn.mkdir(undodir, "p")
 end
 
 vim.opt.backup = false
@@ -122,7 +120,7 @@ local function mode_icon()
 		["!"] = " \u{e1ef} SHELL",
 		t = " \u{e1ec} TERMINAL",
 	}
-	return modes[mode]  or (" \u{e0b3} " .. mode)
+	return modes[mode] or (" \u{e0b3} " .. mode)
 end
 
 _G.mode_icon = mode_icon
@@ -177,7 +175,6 @@ vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" }
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down (centered)" })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
 
-
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
 vim.keymap.set({ "n", "v" }, "<leader>x", '"_d', { desc = "Delete without yanking" })
 
@@ -203,7 +200,6 @@ vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 
-
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
 
 vim.keymap.set("n", "<leader>pa", function()
@@ -217,6 +213,62 @@ vim.keymap.set("n", "<leader>td", function()
 end, { desc = "Toggle diagnostics" })
 
 -- AUTOCMDS
+
+local augroup = vim.api.nvim_create_augroup("UserConfig", { clear = true })
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+	group = augroup,
+	pattern = {
+		"*.lua",
+		"*.py",
+		"*.go",
+		"*.js",
+		"*.jsx",
+		"*.ts",
+		"*.tsx",
+		"*.json",
+		"*.css",
+		"*.scss",
+		"*.html",
+		"*.sh",
+		"*.bash",
+		"*.zsh",
+		"*.c",
+		"*.cpp",
+		"*.h",
+		"*.hpp",
+	},
+	callback = function(args)
+		if vim.bo[args.buf].buftype ~= "" then
+			return
+		end
+		if not vim.bo[args.buf].modifiable then
+			return
+		end
+		if vim.api.nvim_buf_get_name(args.buf) == "" then
+			return
+		end
+
+		local has_efm = false
+		for _, c in ipairs(vim.lsp.get_clients({ bufnr = args.buf })) do
+			if c.name == "efm" then
+				has_efm = true
+				break
+			end
+		end
+		if not has_efm then
+			return
+		end
+
+		pcall(vim.lsp.buf.format, {
+			bufnr = args.buf,
+			timeout_ms = 2000,
+			filter = function(c)
+				return c.name == "efm"
+			end,
+		})
+	end,
+})
 
 vim.api.nvim_create_autocmd("TextYankPost", {
 	group = augroup,
@@ -266,6 +318,15 @@ vim.pack.add({
 		branch = "main",
 		build = ":TSUpdate",
 	},
+	-- Language Server Protocols
+	"https://www.github.com/neovim/nvim-lspconfig",
+	"https://github.com/mason-org/mason.nvim",
+	"https://github.com/creativenull/efmls-configs-nvim",
+	{
+		src = "https://github.com/saghen/blink.cmp",
+		version = vim.version.range("1.*"),
+	},
+	"https://github.com/L3MON4D3/LuaSnip",
 })
 
 local function packadd(name)
@@ -276,6 +337,11 @@ packadd("gitsigns.nvim")
 packadd("mini.nvim")
 packadd("fzf-lua")
 packadd("nvim-tree.lua")
+packadd("nvim-lspconfig")
+packadd("mason.nvim")
+packadd("efmls-configs-nvim")
+packadd("blink.cmp")
+packadd("LuaSnip")
 
 -- PLUGIN CONFIGS
 
@@ -329,7 +395,7 @@ local setup_treesitter = function()
 end
 
 setup_treesitter()
-	
+
 require("nvim-tree").setup({
 	view = {
 		width = 35,
@@ -382,45 +448,294 @@ require("mini.icons").setup({})
 -- gitsigns
 require("gitsigns").setup({
 	signs = {
-		add = { text = "\u{2502}"},
-		change = { text = "\u{2590}"},
-		delete = { text = "\u{25e6}"},
-		topdelete = { text = "\u{25e6}"},
-		changedelete = { text = "\u{25cf}"},
-		untracked = { text = "\u{25cb}"},
+		add = { text = "\u{2502}" },
+		change = { text = "\u{2590}" },
+		delete = { text = "\u{25e6}" },
+		topdelete = { text = "\u{25e6}" },
+		changedelete = { text = "\u{25cf}" },
+		untracked = { text = "\u{25cb}" },
 	},
 	signcolumn = true,
 	current_line_blame = false,
 })
 
+require("mason").setup({})
+
 vim.keymap.set("n", "]h", function()
 	require("gitsigns").next_hunk()
-end, { desc = "Next git hunk"})
+end, { desc = "Next git hunk" })
 
 vim.keymap.set("n", "[h", function()
 	require("gitsigns").prev_hunk()
-end, { desc = "Previous git hunk"})
+end, { desc = "Previous git hunk" })
 
 vim.keymap.set("n", "<leader>hs", function()
 	require("gitsigns").stage_hunk()
-end, { desc = "Stage hunk"})
+end, { desc = "Stage hunk" })
 
 vim.keymap.set("n", "<leader>hr", function()
 	require("gitsigns").reset_hunk()
-end, { desc = "Reset hunk"})
+end, { desc = "Reset hunk" })
 
 vim.keymap.set("n", "<leader>hp", function()
 	require("gitsigns").preview_hunk()
-end, { desc = "Preview hunk"})
+end, { desc = "Preview hunk" })
 
 vim.keymap.set("n", "<leader>hb", function()
-	require("gitsigns").blame_line({ full = true})
-end, { desc = "Blame line"})
+	require("gitsigns").blame_line({ full = true })
+end, { desc = "Blame line" })
 
 vim.keymap.set("n", "<leader>hB", function()
 	require("gitsigns").toggle_current_line_blame()
-end, { desc = "Toggle inline blame"})
+end, { desc = "Toggle inline blame" })
 
 vim.keymap.set("n", "<leader>hd", function()
 	require("gitsigns").diffthis()
-end, { desc = "Diff this"})
+end, { desc = "Diff this" })
+
+-- LSP, Linting, Formatting & Completion
+
+local diagnostic_signs = {
+	Error = "\u{e217}",
+	Warn = "\u{e0ae}",
+	Hint = "\u{e26e}",
+	Info = "\u{e078}",
+}
+
+vim.diagnostic.config({
+	virtual_text = { prefix = "\u{e056}", spacing = 4 },
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = diagnostic_signs.Error,
+			[vim.diagnostic.severity.WARN] = diagnostic_signs.Warn,
+			[vim.diagnostic.severity.INFO] = diagnostic_signs.Info,
+			[vim.diagnostic.severity.HINT] = diagnostic_signs.Hint,
+		},
+	},
+	underline = true,
+	update_in_insert = false,
+	severity_sort = true,
+	float = {
+		border = "rounded",
+		source = true,
+		header = "",
+		prefix = "",
+		focusable = false,
+		style = "minimal",
+	},
+})
+
+do
+	local orig = vim.lsp.util.open_floating_preview
+	function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+		opts = opts or {}
+		opts.border = opts.border or "rounded"
+		return orig(contents, syntax, opts, ...)
+	end
+end
+
+local function lsp_on_attach(ev)
+	local client = vim.lsp.get_client_by_id(ev.data.client_id)
+	if not client then
+		return
+	end
+
+	local bufnr = ev.buf
+	local opts = { noremap = true, silent = true, buffer = bufnr }
+
+	vim.keymap.set("n", "<leader>gd", function()
+		require("fzf-lua").lsp_definitions({ jump_to_single_result = true })
+	end, opts)
+
+	vim.keymap.set("n", "<leader>gD", vim.lsp.buf.definition, opts)
+
+	vim.keymap.set("n", "<leader>gS", function()
+		vim.cmd("vsplit")
+		vim.lsp.buf.definition()
+	end, opts)
+
+	vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+	vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+
+	vim.keymap.set("n", "<leader>D", function()
+		vim.diagnostic.open_float({ scope = "line" })
+	end, opts)
+	vim.keymap.set("n", "<leader>d", function()
+		vim.diagnostic.open_float({ scope = "cursor" })
+	end, opts)
+	vim.keymap.set("n", "<leader>nd", function()
+		vim.diagnostic.jump({ count = 1 })
+	end, opts)
+
+	vim.keymap.set("n", "<leader>pd", function()
+		vim.diagnostic.jump({ count = -1 })
+	end, opts)
+
+	vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+
+	vim.keymap.set("n", "<leader>fr", function()
+		require("fzf-lua").lsp_references()
+	end, opts)
+	vim.keymap.set("n", "<leader>ft", function()
+		require("fzf-lua").lsp_typedefs()
+	end, opts)
+	vim.keymap.set("n", "<leader>fs", function()
+		require("fzf-lua").lsp_document_symbols()
+	end, opts)
+	vim.keymap.set("n", "<leader>fw", function()
+		require("fzf-lua").lsp_workspace_symbols()
+	end, opts)
+	vim.keymap.set("n", "<leader>fi", function()
+		require("fzf-lua").lsp_implementations()
+	end, opts)
+
+	if client:supports_method("textDocument/codeAction", bufnr) then
+		vim.keymap.set("n", "<leader>oi", function()
+			vim.lsp.buf.code_action({
+				context = { only = { "source.organizeImports" }, diagnostics = {} },
+				apply = true,
+				bufnr = bufnr,
+			})
+			vim.defer_fn(function()
+				vim.lsp.buf.format({ bufnr = bufnr })
+			end, 50)
+		end, opts)
+	end
+end
+
+vim.api.nvim_create_autocmd("LspAttach", { group = augroup, callback = lsp_on_attach })
+
+vim.keymap.set("n", "<leader>q", function()
+	vim.diagnostic.setloclist({ open = true })
+end, { desc = "Open diagnostic list" })
+vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, { desc = "Show line diagnostics" })
+
+require("blink.cmp").setup({
+	keymap = {
+		preset = "none",
+		["<C-Space>"] = { "show", "hide" },
+		["<CR>"] = { "accept", "fallback" },
+		["<C-j>"] = { "select_next", "fallback" },
+		["<C-k>"] = { "select_prev", "fallback" },
+		["<Tab>"] = { "snippet_forward", "fallback" },
+		["<S-Tab>"] = { "snippet_backward", "fallback" },
+	},
+	appearance = { nerd_font_variant = "mono" },
+	completion = {
+		menu = {
+			auto_show = function()
+				return vim.bo.filetype ~= "markdown"
+			end,
+		},
+	},
+	sources = { default = { "lsp", "path", "buffer", "snippets" } },
+	snippets = {
+		expand = function(snippet)
+			require("luasnip").lsp_expand(snippet)
+		end,
+	},
+	fuzzy = {
+		implementation = "prefer_rust",
+		prebuilt_binaries = { download = true },
+	},
+})
+
+vim.lsp.config["*"] = {
+	capabilities = require("blink.cmp").get_lsp_capabilities(),
+}
+
+vim.lsp.config("lua_ls", {
+	settings = {
+		Lua = {
+			diagnostics = { globals = { "vim" } },
+			telemetry = { enable = false },
+		},
+	},
+})
+vim.lsp.config("pyright", {})
+vim.lsp.config("bashls", {})
+vim.lsp.config("ts_ls", {})
+vim.lsp.config("gopls", {})
+vim.lsp.config("clangd", {})
+
+vim.g.rustaceanvim = {
+	server = {
+		capabilities = require("blink.cmp").get_lsp_capabilities(),
+	},
+}
+
+do
+	local luacheck = require("efmls-configs.linters.luacheck")
+	local stylua = require("efmls-configs.formatters.stylua")
+
+	local flake8 = require("efmls-configs.linters.flake8")
+	local black = require("efmls-configs.formatters.black")
+
+	local prettier_d = require("efmls-configs.formatters.prettier_d")
+	local eslint_d = require("efmls-configs.linters.eslint_d")
+
+	local fixjson = require("efmls-configs.formatters.fixjson")
+
+	local shellcheck = require("efmls-configs.linters.shellcheck")
+	local shfmt = require("efmls-configs.formatters.shfmt")
+
+	local cpplint = require("efmls-configs.linters.cpplint")
+	local clangfmt = require("efmls-configs.formatters.clang_format")
+
+	local go_revive = require("efmls-configs.linters.go_revive")
+	local gofumpt = require("efmls-configs.formatters.gofumpt")
+
+	vim.lsp.config("efm", {
+		filetypes = {
+			"c",
+			"cpp",
+			"css",
+			"go",
+			"html",
+			"javascript",
+			"javascriptreact",
+			"json",
+			"jsonc",
+			"lua",
+			"markdown",
+			"python",
+			"sh",
+			"typescript",
+			"typescriptreact",
+			"vue",
+			"svelte",
+		},
+		init_options = { documentFormatting = true },
+		settings = {
+			languages = {
+				c = { clangfmt, cpplint },
+				go = { gofumpt, go_revive },
+				cpp = { clangfmt, cpplint },
+				css = { prettier_d },
+				html = { prettier_d },
+				javascript = { eslint_d, prettier_d },
+				javascriptreact = { eslint_d, prettier_d },
+				json = { eslint_d, fixjson },
+				jsonc = { eslint_d, fixjson },
+				lua = { luacheck, stylua },
+				markdown = { prettier_d },
+				python = { flake8, black },
+				sh = { shellcheck, shfmt },
+				typescript = { eslint_d, prettier_d },
+				typescriptreact = { eslint_d, prettier_d },
+				vue = { eslint_d, prettier_d },
+				svelte = { eslint_d, prettier_d },
+			},
+		},
+	})
+end
+
+vim.lsp.enable({
+	"lua_ls",
+	"pyright",
+	"bashls",
+	"ts_ls",
+	"gopls",
+	"clangd",
+	"efm",
+})
