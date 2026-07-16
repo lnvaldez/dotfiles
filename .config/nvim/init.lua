@@ -725,6 +725,7 @@ do
 	local shfmt = require("efmls-configs.formatters.shfmt")
 
 	local cpplint = require("efmls-configs.linters.cpplint")
+	cpplint.lintCommand = "cpplint --filter=-whitespace/tab,-legal/copyright ${INPUT}"
 	local clangfmt = require("efmls-configs.formatters.clang_format")
 
 	local go_revive = require("efmls-configs.linters.go_revive")
@@ -774,6 +775,13 @@ do
 		},
 	})
 end
+
+local languages = require("efmls-configs.defaults").languages()
+languages = vim.tbl_extend("force", languages, {
+	c = {
+		filter = { "-whitespace,-legal/copyright" },
+	},
+})
 
 vim.lsp.enable({
 	"lua_ls",
